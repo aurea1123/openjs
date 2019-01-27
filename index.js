@@ -1,6 +1,6 @@
 const pcl = require('postchain-client');
 
-const node_api_url = "http://localhost:7740"; // using default postchain node REST API port
+const node_api_url = "http://172.21.128.1"; // using default postchain node REST API port
 
 // default blockchain identifier used for testing
 const blockchainRID = "78967baa4768cbcef11c508326ffb13a956689fcb6dc3ba17f4b895cbb1577a3";
@@ -25,7 +25,14 @@ function add_cities() {
 
 function is_city_registered(city_name) {
     return gtx.query("is_city_registered", {city_name: city_name});
-    
+}
+
+function testTransactions() {
+    const tx = gtx.newTransaction([user.pubKey]);
+    const number = Math.random().toString()
+    tx.addOperation('gtx_test', 1, number);
+    tx.sign(user.privKey, user.pubKey);
+    return tx.postAndWaitConfirmation();
 }
 
 async function runTest() {
@@ -34,4 +41,8 @@ async function runTest() {
     console.log("kiev_registered=", kiev_registered);
 }
 
-runTest().catch( err => console.log(err.stack));
+async function runPerformanceTest() {
+    setInterval(testTransactions, 20)
+}
+
+runPerformanceTest().catch( err => console.log(err.stack));
